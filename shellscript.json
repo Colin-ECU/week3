@@ -12,13 +12,12 @@
 	// 	],
 	// 	"description": "Log output to console"
 	// }
-	"add shebang": {
-		"scope": "#!",
-		"prefix": "shebang",
-		"body": [ 
-			"#!/bin/bash",
+	"add a shebang": {
+		"prefix": "#!",
+		"body": [
+		"#!/bin/bash",
 		],
-		"description":  "adds shebang script head"
+		"description": "Add shebang to script"
 	}
 	"add case statement": {
 		"scope": "sh",
@@ -59,7 +58,7 @@
 				"# code if true",
 			"else",
 				"#code if false",
-			"fi",	
+			"fi"	
 		],
 		"description": "adds IF-ELSE test with one AND and two OR options"
 	}

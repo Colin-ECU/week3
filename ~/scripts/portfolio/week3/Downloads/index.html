@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+    <head>
+        <title>For and Read-While Loops in Bash</title>
+        <meta http-equiv="content-type" content="text/html" charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport">
+        <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic" rel="stylesheet" type="text/css">
+        <link href="http://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic" rel="stylesheet" type="text/css">
+        <script type="text/javascript">
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+              })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            
+             ga('create', 'UA-55019978-1', 'auto');
+             ga('send', 'pageview');
+        </script><script src="/assets/javascripts/application.js" type="text/javascript"></script><link href="/assets/stylesheets/application.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body class="woz">
+        <header class="woz">
+            <nav class="navbar" role="navigation">
+                <div class="container">
+                    <h2 class="title">
+                        <span class="brand"><a href="//journalism.stanford.edu">Stanford Journalism</a></span><a href="/">Computational Methods in the Civic Sphere</a>
+                    </h2>
+                </div>
+            </nav>
+        </header> 
+        <div class="container">
+            <h1 class="title">
+                For and Read-While Loops in Bash
+            </h1>
+            
+            <div class="meta">
+                <div class="description">
+                    <p>How to loop, aka designing a program to do repetitive work for you</p>
+                    
+                </div>
+                
+            </div><p>The loop is one of the most fundamental and powerful constructs in computing, because it allows us to repeat a set of commands, as many times as we want, upon a list of items of our choosing. Much of computational thinking involves taking one task and solving it in a way that can be applied repeatedly to all other similar tasks, and the for loop is how we make the computer do that repetitive work:</p>
+
+<pre class="highlight shell"><code><span class="k">for </span>item <span class="k">in</span> <span class="nv">$items</span>
+<span class="k">do
+  </span>task <span class="nv">$item</span>
+<span class="k">done</span>
+</code></pre>
+
+<p>Unlike most of the code we've written so far at the interactive prompt, a for-loop doesn't execute as soon as we hit <strong>Enter</strong>:</p>
+
+<pre class="highlight plaintext"><code>user@host:~$ for item in $items
+</code></pre>
+
+<p>We can write out as many commands as we want in the <strong>block</strong> between the <code>do</code> and <code>done</code> keywords:</p>
+
+<pre class="highlight shell"><code><span class="k">do
+  </span>command_1
+  command_2
+  <span class="c"># another for loop just for fun</span>
+  <span class="k">for </span>a <span class="k">in</span> <span class="nv">$things</span>; <span class="k">do</span>; command_3 a; <span class="k">done
+  </span>command_4
+<span class="k">done</span>
+</code></pre>
+
+<p>Only until we reach <code>done</code>, and hit <strong>Enter</strong>, does the for-loop do its work.</p>
+
+<p>This is fundamentally different than the line-by-line command-and-response we've experienced so far at the prompt. And it presages how we will be programming further on: less emphasis on executing commands with each line, and more emphasis on <em>planning</em> the functionality of a program, and then <em>executing</em> it later.</p>
+
+<h2 id="basic-syntax">Basic syntax</h2>
+
+<p>The syntax for <code>for</code> loops can be confusing, so here are some basic examples to prep/refresh your comprehension of them:</p>
+
+<pre class="highlight shell"><code><span class="k">for </span>animal <span class="k">in </span>dog cat <span class="s1">'fruit bat'</span> elephant ostrich
+<span class="k">do
+  </span><span class="nb">echo</span> <span class="s2">"I want a </span><span class="nv">$animal</span><span class="s2"> for a pet"</span>
+<span class="k">done</span>
+</code></pre>
+
+<p>Here's a more elaborate version using variables:</p>
+
+<pre class="highlight shell"><code><span class="k">for </span>thing <span class="k">in</span> <span class="nv">$collection_of_things</span>
+<span class="k">do
+  </span>some_program <span class="nv">$thing</span>
+  another_program <span class="nv">$thing</span> &gt;&gt; data.txt
+  <span class="c"># as many commands as we want</span>
+<span class="k">done</span>
+</code></pre>
+
+<p>A command substitution can be used to generate the items that the <code>for</code> loop iterates across:</p>
+
+<pre class="highlight shell"><code><span class="k">for </span>var_name <span class="k">in</span> <span class="k">$(</span>seq 1 100<span class="k">)</span>; <span class="k">do
+  </span><span class="nb">echo</span> <span class="s2">"Counting </span><span class="nv">$var_name</span><span class="s2">..."</span>
+<span class="k">done</span>
+</code></pre>
+
+<p>If you need to read a list of lines from a file, and are absolutely sure that none of the lines contain a space within them:</p>
+
+<pre class="highlight shell"><code><span class="k">for </span>url <span class="k">in</span> <span class="k">$(</span>cat list_of_urls.txt<span class="k">)</span>; <span class="k">do
+  </span>curl <span class="s2">"</span><span class="nv">$url</span><span class="s2">"</span> &gt;&gt; everywebpage_combined.html
+<span class="k">done</span>
+</code></pre>
+
+<p>A <strong>read-while</strong> loop is a variation of the above, but is safer for reading lines from a file:</p>
+
+<pre class="highlight shell"><code><span class="k">while </span><span class="nb">read </span>url
+<span class="k">do
+  </span>curl <span class="s2">"</span><span class="nv">$url</span><span class="s2">"</span> &gt;&gt; everywebpage_combined.html
+<span class="k">done</span> &lt; list_of_urls.txt
+</code></pre>
+
+<h2 id="constructing-a-basic-for-loop">Constructing a basic for loop</h2>
+
+<p>Let's start from a beginning, with a very minimal <code>for</code> loop, and then built it into something more elaborate, to help us get an understanding of their purpose.</p>
+
+<h4 id="the-simplest-loop">The simplest loop</h4>
+
+<p>This is about as simple as you can make a <strong>for</strong> loop:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">for </span>x <span class="k">in </span>1      
+<span class="gp">&gt; </span><span class="k">do</span>      
+<span class="gp">&gt; </span><span class="nb">echo </span>Hi
+<span class="gp">&gt; </span><span class="k">done
+</span>Hi
+</code></pre>
+
+<p>Did that seem pretty worthless? Yes it should have. I wrote four lines of code to do what it takes a single line to do, <code>echo 'Hi'</code>.</p>
+
+<h4 id="more-elements-in-the-collection">More elements in the collection</h4>
+
+<p>It's hard to tell, but a "loop" did execute. It just executed <em>once</em>. OK, so how do we make it execute more than one time? Add more (space-separated) elements to the right of the <code>in</code> keyword. Let's add four more <code>1</code>'s:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">for </span>x <span class="k">in </span>1 1 1 1   
+<span class="gp">&gt; </span><span class="k">do</span>      
+<span class="gp">&gt; </span><span class="nb">echo </span>Hi
+<span class="gp">&gt; </span><span class="k">done
+</span>Hi
+Hi
+Hi
+Hi
+</code></pre>
+
+<p>OK, not very exciting, but the program definitely seemed to at least <em>loop</em>: four <code>1</code>'s resulted in four <code>echo</code> commands being executed.</p>
+
+<p>What happens when we replace those four <code>1</code>'s with different numbers? And maybe a couple of words?</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">for </span>x <span class="k">in </span>Q Zebra 999 Smithsonian
+<span class="gp">&gt; </span><span class="k">do</span>      
+<span class="gp">&gt; </span><span class="nb">echo </span>Hi
+<span class="gp">&gt; </span><span class="k">done
+</span>Hi
+Hi
+Hi
+Hi
+</code></pre>
+
+<p>And…<em>nothing</em>. So the <em>loop</em> doesn't automatically <em>do</em> anything <em>specific</em> to the collection of values we gave it. Not yet anyway.</p>
+
+<h4 id="refer-to-the-loop-variable">Refer to the loop variable</h4>
+
+<p>Let's look to the <em>left</em> of the <code>in</code> keyword, and at that <code>x</code>. What's the point of that <code>x</code>? A lowercase <code>x</code> isn't the name of a keyword or command that we've encountered so far (and executing it alone at the prompt will throw an error). So maybe it's a variable? Let's try referencing it in the <code>echo</code> statement:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">for </span>x <span class="k">in </span>Q Zebra 999 Smithsonian
+<span class="gp">&gt; </span><span class="k">do</span>      
+<span class="gp">&gt; </span><span class="nb">echo </span>Hi <span class="nv">$x</span>
+<span class="gp">&gt; </span><span class="k">done
+</span>Hi Q
+Hi Zebra
+Hi 999
+Hi Smithsonian
+</code></pre>
+
+<p>Bingo. This is pretty much the fundamental workings of a <code>for</code> loop:
+- Get a collection of items/values (<code>Q Zebra 999 Smithsonian</code>)
+- Pass them into a <code>for</code> loop construct
+- Using the loop variable (<code>x</code>) as a placeholder, write commands between the <code>do</code>/<code>done</code> block.
+- When the loop executes, the loop variable, <code>x</code>, takes the value of each of the items in the list – <code>Q</code>, <code>Zebra</code>, <code>999</code>, <code>Smithsonian</code>,  – and the block of commands between <code>do</code> and <code>done</code> is then executed. This sequence repeats once for every item in the list.</p>
+
+<p>The <code>do</code>/<code>done</code> block can contain any sequence of commands, even another <code>for</code>-loop:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">for </span>x <span class="k">in </span>Q Zebra 999 Smithsonian
+<span class="gp">&gt; </span><span class="k">do</span>      
+<span class="gp">&gt; </span><span class="nb">echo </span>Hi
+<span class="gp">&gt; </span><span class="k">done
+</span>Hi Q
+Hi Zebra
+Hi 999
+Hi Smithsonian
+</code></pre>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">for </span>x <span class="k">in</span> <span class="k">$(</span>seq 1 3<span class="k">)</span>; <span class="k">do</span>
+<span class="gp">&gt;   </span><span class="k">for </span>y <span class="k">in </span>A B C; <span class="k">do</span>
+<span class="gp">&gt;     </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$x</span><span class="s2">:</span><span class="nv">$y</span><span class="s2">"</span>
+<span class="gp">&gt;   </span><span class="k">done</span>
+<span class="gp">&gt; </span><span class="k">done
+</span>1:A
+1:B
+1:C
+2:A
+2:B
+2:C
+3:A
+3:B
+3:C
+</code></pre>
+
+<p>Loops-within-loops is a common construct in programming. For the most part, I'm going to try to avoid assigning problems that would involve this kind of logic, as it can be tricky to untwist during debugging.</p>
+
+<h3 id="read-a-file-line-by-line-reliably-with-read-while">Read a file, line-by-line, reliably with read-while</h3>
+
+<p>Because <code>cat</code> prints a file line-by-line, the following for loop seems sensible:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">for </span>line <span class="k">in</span> <span class="k">$(</span>cat list-of-dirs.txt<span class="k">)</span>
+<span class="gp">&gt; </span><span class="k">do</span>
+<span class="gp">&gt;    </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span>
+<span class="gp">&gt; </span><span class="k">done</span>
+</code></pre>
+
+<p>However, the command substitution will cause <code>cat</code> to split words by space. If <code>list-of-dirs.txt</code> contains the following:</p>
+
+<pre class="highlight plaintext"><code>Apples
+Oranges
+Documents and Settings
+</code></pre>
+
+<p>The output of the <code>for</code> loop will be this:</p>
+
+<pre class="highlight plaintext"><code>Apples
+Oranges
+Documents
+and
+Settings
+</code></pre>
+
+<p>A <strong>read-while</strong> loop will preserve the words within a line:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">while </span><span class="nb">read </span>line
+  <span class="k">do
+      </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span>
+  <span class="k">done</span> &lt; list-of-dirs.txt
+Apples
+Oranges
+Documents and Settings
+</code></pre>
+
+<p>We can also pipe from the result of a command by enclosing it in <code>&lt;(</code> and <code>)</code>:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">while </span><span class="nb">read </span>line
+  <span class="k">do
+      </span><span class="nb">echo</span> <span class="s2">"Word count per line: </span><span class="nv">$line</span><span class="s2">"</span>
+  <span class="k">done</span> &lt; &lt;<span class="o">(</span>cat list-of-dirs.txt | wc -w<span class="o">)</span>
+1
+1
+3
+</code></pre>
+
+<h2 id="pipes-and-loops">Pipes and loops</h2>
+
+<p>If you're coming from other languages, data streams may be unfamiliar to you. At least they are to me, as the syntax for working with them is far more direct and straightforward in Bash than in Ruby or Python.</p>
+
+<p>However, if you're new to programming in any language, what might also be unclear is how working with data streams is different than working with loops.</p>
+
+<p>For example, the following snippet:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="nb">echo</span> <span class="s2">"hello world i am here"</span> | <span class="se">\</span>
+<span class="gp">&gt;                   </span>tr <span class="s1">'[:lower:]'</span> <span class="s1">'[:upper:]'</span> | tr <span class="s1">' '</span> <span class="s1">'\n'</span>
+HELLO
+WORLD
+I
+AM
+HERE
+</code></pre>
+
+<p>– produces the same output as this loop:</p>
+
+<pre class="highlight shell"><code><span class="k">for </span>word <span class="k">in </span>hello world i am here; <span class="k">do
+  </span><span class="nb">echo</span> <span class="nv">$word</span> | tr <span class="s1">'[:lower:]'</span> <span class="s1">'[:upper:]'</span>  
+<span class="k">done</span>
+</code></pre>
+
+<p>And depending on your mental model of things, it does seem that in both examples, each word, e.g. <code>hello</code>, <code>world</code>, is passed through a process of translation (via <code>tr</code>) and then echoed.</p>
+
+<h3 id="pipes-and-filters">Pipes and filters</h3>
+
+<p>Without getting into the fundamentals of the Unix system, in which a pipe operates fundamentally different than a loop here, let me suggest a mental workaround:</p>
+
+<p>Programs that pipe from stdin and stdout can usually be arranged as filters, in which a stream of data goes into a program, and comes out in a different format:</p>
+
+<pre class="highlight shell"><code><span class="c"># send the stream through a reverse filter</span>
+<span class="gp">user@host:~$ </span><span class="nb">echo</span> <span class="s2">"hello world i am here"</span> | rev
+ereh ma i dlrow olleh
+
+<span class="c"># filter out the first 2 characters</span>
+<span class="gp">user@host:~$ </span><span class="nb">echo</span> <span class="s2">"hello world i am here"</span> | cut -c 3-
+llo world i am here
+
+<span class="c"># filter out the spaces</span>
+<span class="gp">user@host:~$ </span><span class="nb">echo</span> <span class="s2">"hello world i am here"</span> | tr -d <span class="s1">' '</span>
+helloworldiamhere
+
+<span class="c"># filter out words with less than 4 characters</span>
+<span class="gp">user@host:~$ </span><span class="nb">echo</span> <span class="s2">"hello world i am here"</span> | grep -oE <span class="s1">'[a-z]{4,}'</span>
+hello
+world
+here
+</code></pre>
+
+<p>For tasks that are more than just transforming data, from filter to filter, think about using a loop. What might such as a task be? Given a list of URLs, download each, and email the downloaded data, with a customized body and subject:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="k">while </span><span class="nb">read </span>url; <span class="k">do</span>
+   <span class="c"># download the page</span>
+   <span class="nv">content</span><span class="o">=</span><span class="k">$(</span>curl -Ls <span class="nv">$url</span><span class="k">)</span>
+   <span class="c"># count the words</span>
+   <span class="nv">num_of_words</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="nv">$content</span> | wc -w<span class="k">)</span>
+   <span class="c"># extract the title</span>
+   <span class="nv">title</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="nv">$content</span> | grep -oP <span class="s1">'(?&lt;=&lt;title&gt;)[^&lt;]+'</span><span class="k">)</span>
+   <span class="c"># send an email with the page's title and word count</span>
+   <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$content</span><span class="s2">"</span> | mail whoever@stanford.edu -s <span class="s2">"</span><span class="nv">$title</span><span class="s2">: </span><span class="nv">$num_of_words</span><span class="s2"> words"</span>
+   <span class="nb">echo</span> <span class="s2">"...Sending: </span><span class="nv">$title</span><span class="s2">: </span><span class="nv">$num_of_words</span><span class="s2"> words"</span>
+<span class="k">done</span> &lt; urls.txt
+</code></pre>
+
+<p>The data input source, each URL in <code>urls.txt</code>, isn't really being <em>filtered</em> here. Instead, a multi-step task is being done for each URL.</p>
+
+<h3 id="piping-into-read-while">Piping into read-while</h3>
+
+<p>That said, a loop itself can be implemented as just one more filter among filters. Take this variation of the read-while loop, in which the result of <code>echo | grep</code> is piped, line by line, into the <code>while</code> loop, which prints to stdout using <code>echo</code>, which is redirected to the file named some.txt:</p>
+
+<pre class="highlight shell"><code><span class="nb">echo</span> <span class="s1">'hey you'</span> | grep -oE <span class="s1">'[a-z]+'</span> | <span class="k">while </span><span class="nb">read </span>line;
+  <span class="k">do
+  </span><span class="nb">echo </span>word | wc -c
+<span class="k">done</span> &gt;&gt; sometxt
+</code></pre>
+
+<p>This is not a construct that you may need to do often, if at all, but hopefully it reinforces pipe usage in Unix.</p>
+
+<h2 id="less-interactive-programming">Less interactive programming</h2>
+
+<p>The frequent use of <code>for</code> loops, and similar constructs, means that we're moving past the good ol' days of typing in one line of commands and having it execute right after we hit <strong>Enter</strong>. No matter how many commands we pack inside a <code>for</code> loop, nothing happens until we hit the <code>done</code> keyword.</p>
+
+<h4 id="write-once-then-loop-it">Write once. Then loop it</h4>
+
+<p>With that loss of line-by-line interaction with the shell, we lose the main advantage of the interactive prompt: immediate feedback. And we still have all the disadvantages: if we make a typo earlier in the <strong>block</strong> of commands between <code>do</code> and <code>done</code>, we have to start all over.</p>
+
+<p>So here's how we mitigate that:</p>
+
+<h5 id="test-your-code-one-case-at-a-time">Test your code, one case at a time</h5>
+
+<p>One of the biggest mistakes novices make with <code>for</code> loops is they think a <code>for</code> loop <em>immediately</em> solves their problem. So, if what they have to do is download 10,000 URLs, but they can't properly download just <em>one</em> URL, they think putting their flawed commands into a <code>for</code> loop is a step in the right direction.</p>
+
+<p>Besides this being a fundamentally misunderstanding of a <code>for</code> loop, the practical problem is that you are now running your broken code <em>10,000</em> times, which means you have to wait <em>10,000</em> times as long to find out that your code is, alas, still broken.</p>
+
+<p>So pretend you've never heard of <code>for</code> loops. Pretend you have to download all 10,000 URLs, one command a time. Can you write the command to do it for the first URL. How about the second? Once you're reasonably confident that no minor syntax errors are tripping you up, <em>then</em> it's time to think about how to find a general pattern for the 9,997 other URLs.</p>
+
+<h5 id="write-scripts">Write scripts</h5>
+
+<p>The interactive command-line is great. It was fun to start out with, and it'll be fun throughout your computing career. But when you have a big task in front of you, involving more than ten lines of code, then it's time to put that code into a shell script. Don't trust your fallible human fingers to flawlessly retype code.</p>
+
+<p><img alt="img" src="/files/images/topics/unix/nano-for.png" /></p>
+
+<p>Use <strong>nano</strong> to work on loops and <a href="/topics/bash/scripting">save them as shell scripts</a>. For longer files, I'll work on my computer's text editor (<a href="http://www.sublimetext.com/">Sublime Text</a>) and then upload to the server.</p>
+
+<h3 id="exercise-with-web-scraping">Exercise with web scraping</h3>
+
+<p>Just to ground the syntax and workings of the <strong>for-loop</strong>, here's the thought process from turning a routine task into a loop:</p>
+
+<blockquote>
+  <p>For the numbers 1 through 10, use <strong>curl</strong> to download the Wikipedia entry for each number, and save it to a file named "<code>wiki-number-(whatever the number is).html</code>"</p>
+</blockquote>
+
+<h4 id="the-old-fashioned-way">The old fashioned way</h4>
+
+<p>With just 10 URLs, we <em>could</em> set a couple of variables and then copy-and-paste the a <strong>curl</strong> command, 10 times, making changes to each line:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/1 &gt; <span class="s1">'wiki-number-1.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/2 &gt; <span class="s1">'wiki-number-2.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/3 &gt; <span class="s1">'wiki-number-3.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/4 &gt; <span class="s1">'wiki-number-4.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/5 &gt; <span class="s1">'wiki-number-5.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/6 &gt; <span class="s1">'wiki-number-6.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/7 &gt; <span class="s1">'wiki-number-7.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/8 &gt; <span class="s1">'wiki-number-8.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/9 &gt; <span class="s1">'wiki-number-9.html'</span>
+<span class="gp">user@host:~$ </span>curl http://en.wikipedia.org/wiki/10 &gt; <span class="s1">'wiki-number-10.html'</span>
+</code></pre>
+
+<p>And guess what? It <em>works</em>. For 10 URLs, it's not a bad solution, and it's significantly faster than doing it the old <em>old</em>-fashioned way (doing it from your web browser)</p>
+
+<h4 id="reducing-repetition">Reducing repetition</h4>
+
+<p>Even without thinking about a loop, we can still reduce repetition using <strong>variables</strong>: the base URL, <code>http://en.wikipedia.org/wiki/</code>, and the base-filename never change, so let's assign those values to variables that can be reused:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="nv">base_url</span><span class="o">=</span>http://en.wikipedia.org/wiki
+<span class="gp">user@host:~$ </span><span class="nv">fname</span><span class="o">=</span><span class="s1">'wiki-number'</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/1"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-1"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/2"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-2"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/3"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-3"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/4"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-4"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/5"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-5"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/6"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-6"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/7"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-7"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/8"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-8"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/9"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-9"</span>
+<span class="gp">user@host:~$ </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/10"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-10"</span>
+</code></pre>
+
+<h4 id="applying-the-for-loop">Applying the for-loop</h4>
+
+<p>At this point, we've simplified the pattern so far that we can see how little changes with each separate task. After learning about the <code>for</code>-loop, we can apply it without much thinking (we also add a <strong>sleep</strong> command so that we pause between web requests)</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="nv">base_url</span><span class="o">=</span>http://en.wikipedia.org/wiki
+<span class="gp">user@host:~$ </span><span class="nv">fname</span><span class="o">=</span><span class="s1">'wiki-number'</span>
+<span class="gp">user@host:~$ </span><span class="k">for </span>x <span class="k">in </span>1 2 3 4 5 6 7 8 9 10
+<span class="gp">&gt; </span><span class="k">do</span>
+<span class="gp">&gt;    </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/</span><span class="nv">$x</span><span class="s2">"</span> &gt; <span class="s2">"</span><span class="nv">$fname</span><span class="s2">-</span><span class="nv">$x</span><span class="s2">"</span>
+<span class="gp">&gt;    </span>sleep 2
+<span class="gp">&gt; </span><span class="k">done</span>
+</code></pre>
+
+<h4 id="generating-a-list">Generating a list</h4>
+
+<p>In most situations, creating a for-loop is easy; it's the <em>creation of the list</em> that can be the hard work. What if we wanted to collect the pages for numbers 1 through 100? That's a lot of typing.</p>
+
+<p>But if we let our laziness dictate our thinking, we can imagine that counting from <em>x</em> to <em>y</em> seems like an inherently computational task. And it is, and Unix has the <code>seq</code> utility for this:</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="nv">base_url</span><span class="o">=</span>http://en.wikipedia.org/wiki
+<span class="gp">user@host:~$ </span><span class="nv">fname</span><span class="o">=</span><span class="s1">'wiki-number'</span>
+<span class="gp">user@host:~$ </span><span class="k">for </span>x <span class="k">in</span> <span class="k">$(</span>seq 1 100<span class="k">)</span>
+<span class="gp">&gt; </span><span class="k">do</span>
+<span class="gp">&gt;    </span>curl <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/</span><span class="nv">$x</span><span class="s2">"</span> &gt; <span class="s2">"wiki-number-</span><span class="nv">$x</span><span class="s2">"</span>
+<span class="gp">&gt;    </span>sleep 2
+<span class="gp">&gt; </span><span class="k">done</span>
+</code></pre>
+
+<h4 id="generating-a-list-of-non-numbers-for-iteration">Generating a list of non-numbers for iteration</h4>
+
+<p>Many repetitive tasks aren't as simple as counting from <em>x</em> to <em>y</em>, and so the problem becomes <em>how to generate a non-linear list of items</em>? This is basically what the art of data-collection and management. But let's make a simple scenario for ourselves:</p>
+
+<blockquote>
+  <p>For ten of the 10-letter (or more) words that appear at least once in a headline on the current NYTimes.com front page, fetch the Wiktionary page for that word</p>
+</blockquote>
+
+<p>We break this task into two parts:</p>
+
+<ol>
+  <li>Fetch a list of ten 10+-letter words from nytimes.com headlines</li>
+  <li>Pass those words to our for-loop</li>
+</ol>
+
+<p>Step 1: Using the <strong>pup</strong> utility (or command-line HTML parser of your choice):</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="nv">words</span><span class="o">=</span><span class="k">$(</span>curl -s http://www.nytimes.com | <span class="se">\</span>
+<span class="gp">&gt;  </span>pup <span class="s1">'h2.story-heading text{}'</span> | <span class="se">\</span>
+<span class="gp">&gt;  </span>grep -oE <span class="s1">'[[:alpha:]]{10,}'</span> | sort | <span class="se">\</span>
+<span class="gp">&gt;  </span>uniq | head -n 10<span class="k">)</span>
+</code></pre>
+
+<p>Step 2 (assuming the <code>words</code> variable is being passed along):</p>
+
+<pre class="highlight shell"><code><span class="gp">user@host:~$ </span><span class="nv">base_url</span><span class="o">=</span><span class="s1">'https://en.wiktionary.org/wiki/'</span>
+<span class="gp">user@host:~$ </span><span class="nv">fname</span><span class="o">=</span><span class="s1">'wiktionary-'</span>
+<span class="gp">user@host:~$ </span><span class="k">for </span>word <span class="k">in</span> <span class="nv">$words</span>
+<span class="gp">&gt; </span><span class="k">do</span>
+<span class="gp">&gt;    </span><span class="nb">echo</span> <span class="nv">$word</span>
+<span class="gp">&gt;    </span>curl -sL <span class="s2">"</span><span class="nv">$base_url$word</span><span class="s2">"</span> &gt; <span class="s2">"</span><span class="nv">$fname$word</span><span class="s2">.html"</span>
+<span class="gp">&gt;    </span>sleep 2
+<span class="gp">&gt; </span><span class="k">done</span>
+</code></pre>
+
+<p>Check out <a href="http://software-carpentry.org/v5/novice/shell/04-loop.html">Software Carpentry's excellent guide to for-loops in Bash</a></p>
+ 
+        </div>
+        <div>
+            <footer class="woz">
+                <div class="container">
+                    <div class="search">
+                        <h4>
+                            Search
+                        </h4>
+                        <div>
+                            <script>
+                              (function() {
+                                var cx = '012541043402465721355:asllodilcv0';
+                                var gcse = document.createElement('script');
+                                gcse.type = 'text/javascript';
+                                gcse.async = true;
+                                gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+                                    '//www.google.com/cse/cse.js?cx=' + cx;
+                                var s = document.getElementsByTagName('script')[0];
+                                s.parentNode.insertBefore(gcse, s);
+                              })();
+                            </script>
+                            <gcse:search></gcse:search>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="container">
+                    <h5>
+                        Quick Links
+                    </h5>
+                    <ul>
+                        <li>
+                            <a href="/curriculum">Curriculum</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/homework">Homework</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/bash-guide">Bash guide</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/unix-tools">Unix tools</a>
+                        </li>
+                        
+                        <li>
+                            <a href="http://cjlab.stanford.edu">Stanford Computational Journalism Lab</a>
+                        </li>
+                        <li>
+                            <a href="http://software-carpentry.org/v5/novice/shell/index.html">Software-Carpentry's guide to the Unix Shell</a>
+                        </li>
+                        
+                        <li>
+                            <a href="http://datascienceatthecommandline.com/">Data Science at the Command Line</a>
+                        </li>
+                        
+                    </ul>
+                    <h5>
+                        About Computational Methods in the Civic Sphere
+                    </h5>
+                    <p>
+                        <a href="/">CompCiv</a> is a <a href="http://journalism.stanford.edu/">Stanford Journalism course</a> taught by <a href="http://danwin.com/">Dan Nguyen</a> 
+                    </p>
+                </div>
+            </footer>
+        </div>
+        
+    </body>
+</html>
